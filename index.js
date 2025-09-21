@@ -48,5 +48,6 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-console.log('🤖 Telegram AirtimeBot is running...');
+console.log('🤖 Telegram QuickWallet is running...');
+console.log('🤖 QuickWallet Bot is running...');
 console.log('📱 Bot is ready to receive messages!');

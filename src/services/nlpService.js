@@ -22,7 +22,7 @@ class NLPService {
       const prompt = `
         Analyze this message and extract the intent and parameters. Return ONLY a JSON object with this exact structure:
         {
-          "intent": "balance_check|wallet_fund|airtime_purchase|data_purchase|transactions|set_pin|change_pin|unknown",
+          "intent": "balance_check|wallet_fund|airtime_purchase|data_purchase|transactions|monthly_report|set_pin|change_pin|unknown",
           "amount": number or null,
           "network": "MTN|Airtel|Glo|9mobile" or null,
           "phoneNumber": "phone number" or null,
@@ -37,6 +37,7 @@ class NLPService {
         "Get me 2GB Airtel data" -> {"intent":"data_purchase","amount":null,"network":"Airtel","phoneNumber":null,"type":"data","dataSize":"2GB"}
         "Check balance" -> {"intent":"balance_check","amount":null,"network":null,"phoneNumber":null,"type":null,"dataSize":null}
         "Fund wallet with ₦2000" -> {"intent":"wallet_fund","amount":2000,"network":null,"phoneNumber":null,"type":null,"dataSize":null}
+        "Monthly report" -> {"intent":"monthly_report","amount":null,"network":null,"phoneNumber":null,"type":null,"dataSize":null}
       `;
 
       const result = await this.model.generateContent(prompt);
@@ -80,6 +81,11 @@ class NLPService {
     // Transaction history patterns
     if (lowerMessage.includes('transaction') || lowerMessage.includes('history') || lowerMessage.includes('last')) {
       return { intent: 'transactions', amount: null, network: null, phoneNumber: null, type: null, dataSize: null };
+    }
+    
+    // Monthly report patterns
+    if (lowerMessage.includes('monthly') || lowerMessage.includes('report') || lowerMessage.includes('summary')) {
+      return { intent: 'monthly_report', amount: null, network: null, phoneNumber: null, type: null, dataSize: null };
     }
     
     // PIN management patterns

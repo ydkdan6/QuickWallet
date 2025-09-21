@@ -57,6 +57,23 @@ class TransactionService {
       return { success: false, message: error.message };
     }
   }
+
+  async getMonthlyTransactions(userId, startDate) {
+    try {
+      const { data: transactions, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('created_at', startDate.toISOString())
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return { success: true, transactions };
+    } catch (error) {
+      console.error('Error fetching monthly transactions:', error);
+      return { success: false, message: error.message };
+    }
+  }
 }
 
 module.exports = new TransactionService();

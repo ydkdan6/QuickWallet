@@ -75,13 +75,17 @@ class MessageHandler {
     
     if (user) {
       await this.bot.sendMessage(chatId, 
-        `👋 Welcome back, ${user.first_name}!\n\n` +
-        'You can:\n' +
-        '• Check your balance\n' +
-        '• Buy airtime or data\n' +
-        '• Fund your wallet\n' +
-        '• View transaction history\n\n' +
-        'Just type what you want to do in natural language!'
+        `🎉 Welcome back to QuickWallet, ${user.first_name}!\n\n` +
+        '💰 Your digital wallet for seamless transactions\n\n' +
+        '✨ What you can do:\n' +
+        '• 💳 Check your wallet balance\n' +
+        '• 📱 Buy airtime for any network\n' +
+        '• 📊 Purchase data bundles\n' +
+        '• 💵 Fund your wallet instantly\n' +
+        '• 📋 View transaction history\n' +
+        '• 📊 Get monthly reports\n\n' +
+        '🗣️ Just tell me what you want to do in plain English!\n' +
+        'Example: "Check my balance" or "Buy ₦500 MTN airtime"'
       );
       return;
     }
@@ -89,8 +93,15 @@ class MessageHandler {
     // Start registration process
     this.userStates.set(userId, { step: 'firstName' });
     await this.bot.sendMessage(chatId, 
-      '👋 Welcome to AirtimeBot!\n\n' +
-      'Let\'s get you registered. First, what\'s your first name?'
+      '🎉 Welcome to QuickWallet! 🎉\n\n' +
+      '💰 Your smart digital wallet for airtime, data, and more!\n\n' +
+      '✨ QuickWallet makes it easy to:\n' +
+      '• Buy airtime & data for all networks\n' +
+      '• Manage your digital wallet\n' +
+      '• Track your spending with detailed reports\n' +
+      '• Secure transactions with PIN protection\n\n' +
+      '📝 Let\'s get you set up in just a few steps!\n\n' +
+      '👤 First, what should I call you? Please enter your first name:'
     );
   }
 
@@ -102,28 +113,48 @@ class MessageHandler {
       case 'firstName':
         userData.firstName = messageText.trim();
         this.userStates.set(userId, { step: 'lastName', data: userData });
-        await this.bot.sendMessage(chatId, 'Great! Now, what\'s your last name?');
+        await this.bot.sendMessage(chatId, 
+          `Nice to meet you, ${userData.firstName}! 😊\n\n` +
+          '👥 Now, what\'s your last name?'
+        );
         break;
 
       case 'lastName':
         userData.lastName = messageText.trim();
         this.userStates.set(userId, { step: 'email', data: userData });
-        await this.bot.sendMessage(chatId, 'Perfect! What\'s your email address?');
+        await this.bot.sendMessage(chatId, 
+          `Perfect, ${userData.firstName} ${userData.lastName}! 👍\n\n` +
+          '📧 What\'s your email address?\n' +
+          '(We\'ll use this for payment notifications and monthly reports)'
+        );
         break;
 
       case 'email':
         if (!this.isValidEmail(messageText)) {
-          await this.bot.sendMessage(chatId, 'Please enter a valid email address.');
+          await this.bot.sendMessage(chatId, 
+            '❌ That doesn\'t look like a valid email address.\n\n' +
+            '📧 Please enter a valid email (example: john@gmail.com):'
+          );
           return;
         }
         userData.email = messageText.trim();
         this.userStates.set(userId, { step: 'phoneNumber', data: userData });
-        await this.bot.sendMessage(chatId, 'Excellent! What\'s your phone number? (e.g., 08123456789)');
+        await this.bot.sendMessage(chatId, 
+          '✅ Email saved successfully!\n\n' +
+          '📱 What\'s your phone number?\n' +
+          '(Please enter 11 digits starting with 0, e.g., 08123456789)'
+        );
         break;
 
       case 'phoneNumber':
         if (!this.isValidPhoneNumber(messageText)) {
-          await this.bot.sendMessage(chatId, 'Please enter a valid Nigerian phone number (11 digits starting with 0).');
+          await this.bot.sendMessage(chatId, 
+            '❌ That doesn\'t look like a valid phone number.\n\n' +
+            '📱 Please enter a valid Nigerian phone number:\n' +
+            '• Must be 11 digits\n' +
+            '• Must start with 0\n' +
+            '• Example: 08123456789'
+          );
           return;
         }
         userData.phoneNumber = messageText.trim();
@@ -133,8 +164,12 @@ class MessageHandler {
         if (result.success) {
           this.userStates.set(userId, { step: 'setPIN', data: { userId: result.user.id } });
           await this.bot.sendMessage(chatId, 
-            '🎉 Account created successfully!\n\n' +
-            'Now, please set a 4-6 digit transaction PIN for security:'
+            '🎉 Congratulations! Your QuickWallet account is ready!\n\n' +
+            '🔐 For security, please set a transaction PIN:\n' +
+            '• Use 4-6 digits only\n' +
+            '• Keep it secret and memorable\n' +
+            '• You\'ll need this for all transactions\n\n' +
+            '🔢 Enter your PIN now:'
           );
         } else {
           this.userStates.delete(userId);
@@ -144,7 +179,10 @@ class MessageHandler {
 
       case 'setPIN':
         if (!this.isValidPIN(messageText)) {
-          await this.bot.sendMessage(chatId, 'Please enter a 4-6 digit PIN.');
+          await this.bot.sendMessage(chatId, 
+            '❌ Invalid PIN format.\n\n' +
+            '🔢 Please enter exactly 4-6 digits (numbers only):'
+          );
           return;
         }
         
@@ -156,12 +194,16 @@ class MessageHandler {
         
         if (pinResult.success) {
           await this.bot.sendMessage(chatId, 
-            '✅ Registration completed successfully!\n\n' +
-            'Your account is ready. You can now:\n' +
-            '• Check your balance\n' +
-            '• Buy airtime or data\n' +
-            '• Fund your wallet\n\n' +
-            'Just type what you want to do!'
+            '🎉 Welcome to QuickWallet! 🎉\n\n' +
+            '✅ Your account is fully set up and ready to use!\n\n' +
+            '💰 Current wallet balance: ₦0.00\n\n' +
+            '🚀 Get started:\n' +
+            '• Type "fund wallet" to add money\n' +
+            '• Type "check balance" to see your balance\n' +
+            '• Say "buy airtime" to purchase airtime\n' +
+            '• Say "get data" to buy data bundles\n\n' +
+            '💡 Pro tip: Just tell me what you want in plain English!\n' +
+            'I understand natural language! 😊'
           );
         } else {
           await this.bot.sendMessage(chatId, `❌ Failed to set PIN: ${pinResult.message}`);
@@ -230,6 +272,10 @@ class MessageHandler {
         await this.handleTransactionHistory(chatId, userId);
         break;
         
+      case 'monthly_report':
+        await this.handleMonthlyReport(chatId, userId);
+        break;
+        
       case 'set_pin':
       case 'change_pin':
         this.userStates.set(userId, { step: 'setPIN', data: { userId: user.id } });
@@ -238,13 +284,23 @@ class MessageHandler {
         
       default:
         await this.bot.sendMessage(chatId, 
-          '🤔 I didn\'t understand that. You can:\n\n' +
-          '• Check balance\n' +
-          '• Buy airtime: "Buy ₦500 MTN airtime for 08123456789"\n' +
-          '• Buy data: "Get me 2GB Airtel data"\n' +
-          '• Fund wallet: "Add ₦2000 to my wallet"\n' +
-          '• View transactions: "Show my last 5 transactions"\n' +
-          '• Change PIN: "Set a new PIN"'
+          '🤔 I didn\'t quite understand that. Here\'s what I can help you with:\n\n' +
+          '💰 **Wallet Management:**\n' +
+          '• "Check my balance"\n' +
+          '• "Fund my wallet"\n' +
+          '• "Add ₦2000 to wallet"\n\n' +
+          '📱 **Airtime & Data:**\n' +
+          '• "Buy ₦500 MTN airtime for 08123456789"\n' +
+          '• "Get me 2GB Airtel data"\n' +
+          '• "Purchase 1GB MTN data"\n\n' +
+          '📊 **Reports & History:**\n' +
+          '• "Show my transactions"\n' +
+          '• "Monthly report"\n' +
+          '• "Last 5 transactions"\n\n' +
+          '🔐 **Security:**\n' +
+          '• "Change my PIN"\n' +
+          '• "Set new PIN"\n\n' +
+          '💡 Just type naturally - I understand plain English!'
         );
     }
   }
@@ -255,10 +311,17 @@ class MessageHandler {
     
     if (balanceResult.success) {
       await this.bot.sendMessage(chatId, 
-        `💰 Your wallet balance: ₦${balanceResult.balance.toFixed(2)}`
+        `💰 **QuickWallet Balance**\n\n` +
+        `💵 Current Balance: ₦${balanceResult.balance.toFixed(2)}\n\n` +
+        `${balanceResult.balance < 100 ? 
+          '⚠️ Low balance! Type "fund wallet" to add money.' : 
+          '✅ You\'re all set for transactions!'}`
       );
     } else {
-      await this.bot.sendMessage(chatId, '❌ Unable to fetch balance. Please try again.');
+      await this.bot.sendMessage(chatId, 
+        '❌ Unable to fetch your balance right now.\n' +
+        'Please try again in a moment.'
+      );
     }
   }
 
@@ -450,6 +513,72 @@ class MessageHandler {
     await this.bot.sendMessage(chatId, message);
   }
 
+  async handleMonthlyReport(chatId, userId) {
+    const user = await userService.getUserByTelegramId(userId);
+    
+    // Get current month transactions
+    const currentDate = new Date();
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    
+    const monthlyTransactions = await transactionService.getMonthlyTransactions(user.id, firstDayOfMonth);
+    
+    if (!monthlyTransactions.success || monthlyTransactions.transactions.length === 0) {
+      await this.bot.sendMessage(chatId, 
+        '📊 **Monthly Report**\n\n' +
+        `📅 ${currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}\n\n` +
+        '📝 No transactions found for this month.\n\n' +
+        '💡 Start using QuickWallet to see your monthly spending patterns!'
+      );
+      return;
+    }
+
+    const transactions = monthlyTransactions.transactions;
+    const totalSpent = transactions
+      .filter(tx => tx.type !== 'funding' && tx.status === 'completed')
+      .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+    
+    const totalFunded = transactions
+      .filter(tx => tx.type === 'funding' && tx.status === 'completed')
+      .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+
+    const airtimeSpent = transactions
+      .filter(tx => tx.type === 'airtime' && tx.status === 'completed')
+      .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+
+    const dataSpent = transactions
+      .filter(tx => tx.type === 'data' && tx.status === 'completed')
+      .reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+
+    const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    
+    let report = `📊 **QuickWallet Monthly Report**\n\n`;
+    report += `📅 **${monthName}**\n\n`;
+    report += `💰 **Financial Summary:**\n`;
+    report += `• Total Funded: ₦${totalFunded.toFixed(2)}\n`;
+    report += `• Total Spent: ₦${totalSpent.toFixed(2)}\n`;
+    report += `• Net Flow: ₦${(totalFunded - totalSpent).toFixed(2)}\n\n`;
+    
+    if (totalSpent > 0) {
+      report += `📱 **Spending Breakdown:**\n`;
+      if (airtimeSpent > 0) report += `• Airtime: ₦${airtimeSpent.toFixed(2)}\n`;
+      if (dataSpent > 0) report += `• Data: ₦${dataSpent.toFixed(2)}\n\n`;
+    }
+    
+    report += `📈 **Activity:**\n`;
+    report += `• Total Transactions: ${transactions.length}\n`;
+    report += `• Successful: ${transactions.filter(tx => tx.status === 'completed').length}\n`;
+    report += `• Failed: ${transactions.filter(tx => tx.status === 'failed').length}\n\n`;
+    
+    const currentBalance = await walletService.getWalletBalance(user.id);
+    if (currentBalance.success) {
+      report += `💵 **Current Balance:** ₦${currentBalance.balance.toFixed(2)}\n\n`;
+    }
+    
+    report += `📊 Want detailed history? Type "show transactions"`;
+
+    await this.bot.sendMessage(chatId, report);
+  }
+
   async generatePaymentLink(chatId, userId, amount) {
     const user = await userService.getUserByTelegramId(userId);
     const reference = `FUND_${userId}_${Date.now()}`;
@@ -465,12 +594,13 @@ class MessageHandler {
 
     if (paymentResult.success) {
       await this.bot.sendMessage(chatId, 
-        `💳 Payment Link Generated!\n\n` +
+        `💳 **Payment Link Ready!**\n\n` +
         `Amount: ₦${amount}\n` +
         `Reference: ${reference}\n\n` +
-        `Click the link below to complete payment:\n` +
+        `🔗 Click the link below to pay securely:\n` +
         `${paymentResult.paymentUrl}\n\n` +
-        `Your wallet will be credited automatically after successful payment.`
+        `✅ Your QuickWallet will be credited automatically after payment.\n` +
+        `💡 Payment is secured by Paystack.`
       );
     } else {
       await this.bot.sendMessage(chatId, 
@@ -481,7 +611,7 @@ class MessageHandler {
 
   async handleHelp(chatId) {
     const helpMessage = `
-🤖 *AirtimeBot Help*
+🤖 *QuickWallet Help*
 
 *Available Commands:*
 /start - Register or restart
@@ -494,6 +624,7 @@ class MessageHandler {
 • "Get me 2GB Airtel data"
 • "Fund my wallet with ₦2000"
 • "Show my last 5 transactions"
+• "Monthly report"
 • "Set a new PIN"
 
 *Supported Networks:*
@@ -506,6 +637,7 @@ class MessageHandler {
 ✅ Secure PIN protection
 ✅ Wallet management
 ✅ Transaction history
+✅ Monthly reports
 ✅ Natural language processing
 ✅ 24/7 availability
 
@@ -517,7 +649,7 @@ Need help? Just type what you want to do!
 
   // Utility methods
   isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   }
 
