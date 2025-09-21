@@ -22,7 +22,7 @@ class MessageHandler {
       
       if (!user && messageText !== '/start') {
         await this.bot.sendMessage(chatId, 
-          '👋 Welcome! Please continue by clicking on /continue to register your account.'
+          '👋 Welcome! Please continue by clicking on /start to register your account.'
         );
         return;
       }
