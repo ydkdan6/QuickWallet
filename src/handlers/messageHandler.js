@@ -22,7 +22,7 @@ class MessageHandler {
       
       if (!user && messageText !== '/start') {
         await this.bot.sendMessage(chatId, 
-          '👋 Welcome! Please start by typing /start to register your account.'
+          '👋 Welcome! Please continue by clicking on /continue to register your account.'
         );
         return;
       }
@@ -130,14 +130,19 @@ class MessageHandler {
         break;
 
       case 'email':
-        if (!this.isValidEmail(messageText)) {
+        const email = messageText.trim();
+        
+        // Check if email already exists in database
+        const emailExists = await userService.checkEmailExists(email);
+        if (emailExists) {
           await this.bot.sendMessage(chatId, 
-            '❌ That doesn\'t look like a valid email address.\n\n' +
-            '📧 Please enter a valid email (example: john@gmail.com):'
+            '❌ This email address is already registered with another account.\n\n' +
+            '📧 Please enter a different email address:'
           );
           return;
         }
-        userData.email = messageText.trim();
+        
+        userData.email = email;
         this.userStates.set(userId, { step: 'phoneNumber', data: userData });
         await this.bot.sendMessage(chatId, 
           '✅ Email saved successfully!\n\n' +
@@ -147,33 +152,42 @@ class MessageHandler {
         break;
 
       case 'phoneNumber':
-        if (!this.isValidPhoneNumber(messageText)) {
-          await this.bot.sendMessage(chatId, 
-            '❌ That doesn\'t look like a valid phone number.\n\n' +
-            '📱 Please enter a valid Nigerian phone number:\n' +
-            '• Must be 11 digits\n' +
-            '• Must start with 0\n' +
-            '• Example: 08123456789'
-          );
-          return;
-        }
-        userData.phoneNumber = messageText.trim();
+        const phoneNumber = messageText.trim();
         
-        // Create user account
-        const result = await userService.createUser(userId, userData);
-        if (result.success) {
-          this.userStates.set(userId, { step: 'setPIN', data: { userId: result.user.id } });
+        try {
+          // Check if phone number already exists in database
+          const phoneExists = await userService.checkPhoneExists(phoneNumber);
+          if (phoneExists) {
+            await this.bot.sendMessage(chatId, 
+              '❌ This phone number is already registered with another account.\n\n' +
+              '📱 Please enter a different phone number:'
+            );
+            return;
+          }
+
+          userData.phoneNumber = phoneNumber;
+          
+          // Create user account
+          const result = await userService.createUser(userId, userData);
+          if (result.success) {
+            this.userStates.set(userId, { step: 'setPIN', data: { userId: result.user.id } });
+            await this.bot.sendMessage(chatId, 
+              '🎉 Congratulations! Your QuickWallet account is ready!\n\n' +
+              '🔐 For security, please set a transaction PIN:\n' +
+              '• Use 4-6 digits only\n' +
+              '• Keep it secret and memorable\n' +
+              '• You\'ll need this for all transactions\n\n' +
+              '🔢 Enter your PIN now:'
+            );
+          } else {
+            this.userStates.delete(userId);
+            await this.bot.sendMessage(chatId, `❌ Registration failed: ${result.message}`);
+          }
+        } catch (error) {
+          console.error('Error in phoneNumber case:', error);
           await this.bot.sendMessage(chatId, 
-            '🎉 Congratulations! Your QuickWallet account is ready!\n\n' +
-            '🔐 For security, please set a transaction PIN:\n' +
-            '• Use 4-6 digits only\n' +
-            '• Keep it secret and memorable\n' +
-            '• You\'ll need this for all transactions\n\n' +
-            '🔢 Enter your PIN now:'
+            '❌ Something went wrong. Please try again with your phone number.'
           );
-        } else {
-          this.userStates.delete(userId);
-          await this.bot.sendMessage(chatId, `❌ Registration failed: ${result.message}`);
         }
         break;
 
@@ -648,16 +662,6 @@ Need help? Just type what you want to do!
   }
 
   // Utility methods
-  isValidEmail(email) {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-  }
-
-  isValidPhoneNumber(phone) {
-    const phoneRegex = /^0[789][01]\d{8}$/;
-    return phoneRegex.test(phone);
-  }
-
   isValidPIN(pin) {
     const pinRegex = /^\d{4,6}$/;
     return pinRegex.test(pin);

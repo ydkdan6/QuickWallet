@@ -63,6 +63,56 @@ class UserService {
     }
   }
 
+  async checkEmailExists(email) {
+    try {
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('id, email')
+        .eq('email', email.toLowerCase().trim())
+        .single();
+
+      // If error code is PGRST116, it means no rows found (email doesn't exist)
+      if (error && error.code === 'PGRST116') {
+        return false; // Email doesn't exist
+      }
+
+      if (error) throw error;
+
+      // If we get here, email exists
+      return true;
+    } catch (error) {
+      console.error('Error checking email existence:', error);
+      // In case of error, return false to allow registration attempt
+      // The actual creation will catch duplicate email constraint violation
+      return false;
+    }
+  }
+
+  async checkPhoneExists(phoneNumber) {
+    try {
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('id, phone_number')
+        .eq('phone_number', phoneNumber.trim())
+        .single();
+
+      // If error code is PGRST116, it means no rows found (phone doesn't exist)
+      if (error && error.code === 'PGRST116') {
+        return false; // Phone number doesn't exist
+      }
+
+      if (error) throw error;
+
+      // If we get here, phone number exists
+      return true;
+    } catch (error) {
+      console.error('Error checking phone number existence:', error);
+      // In case of error, return false to allow registration attempt
+      // The actual creation will catch duplicate phone constraint violation
+      return false;
+    }
+  }
+
   async setPIN(userId, pin) {
     try {
       const saltRounds = 12;
