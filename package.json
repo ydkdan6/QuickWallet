@@ -1,0 +1,23 @@
+{
+  "name": "telegram-airtime-bot",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Telegram bot for airtime and data purchases with wallet management",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["telegram", "bot", "airtime", "data", "wallet", "paystack", "vtpass"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@supabase/supabase-js": "^2.39.3",
+    "axios": "^1.6.7",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.1",
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}
